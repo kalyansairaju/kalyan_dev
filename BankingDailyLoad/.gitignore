@@ -1,0 +1,8 @@
+.vs/
+bin/
+obj/
+*.dtproj.user
+*.suo
+*.user
+*.database
+*.dtsx.layout

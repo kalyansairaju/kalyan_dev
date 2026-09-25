@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="9/25/2026 11:03:33 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="KALYANPC22"
+  DTS:CreatorName="KALYANPC22\CodexSandboxOffline"
+  DTS:Description="Loop daily banking CSV files into raw staging, then publish active customers and valid transactions. Dates use British day/month/year format."
+  DTS:DTSID="{0A36BBD5-77C4-44F2-BBF7-908E19D28D12}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="15.0.2000.5"
+  DTS:LocaleID="16393"
+  DTS:MaxConcurrentExecutables="1"
+  DTS:ObjectName="BankingDailyLoad"
+  DTS:ProtectionLevel="0"
+  DTS:VersionGUID="{C5709B69-59F9-497A-AD35-6C299047B992}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[Local_SQL_Server]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{F43BAB48-0DB3-4759-A187-653BAA61CB29}"
+      DTS:ObjectName="Local_SQL_Server">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectionString="Data Source=.\SQLEXPRESS;Initial Catalog=GOC_DataEngineer_Practice;Provider=SQLNCLI11;Integrated Security=SSPI;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{202A702B-C2CB-4F43-B623-C010582021CD}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="CurrentFile">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{EC36B9EC-D566-4A8A-910B-95744ABEB272}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="InputFolder">
+      <DTS:VariableValue
+        DTS:DataType="8">C:\Users\kalya\Documents\Codex\2026-09-25\ca\outputs\BankingDailyLoad\input</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Convert dates and publish active customers and transactions"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DTSID="{9B3E1DE7-F9BC-41B6-A4CF-A5FB2089C595}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Convert dates and publish active customers and transactions"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{F43BAB48-0DB3-4759-A187-653BAA61CB29}"
+          SQLTask:SqlStatementSource="EXEC bankdemo.PublishActive;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Stage each daily CSV file"
+      DTS:CreationName="STOCK:FOREACHLOOP"
+      DTS:DTSID="{A81BC007-4F87-4FE3-81BB-98EE5FAC0042}"
+      DTS:ExecutableType="STOCK:FOREACHLOOP"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Stage each daily CSV file">
+      <DTS:ForEachEnumerator
+        DTS:CreationName="Microsoft.ForEachFileEnumerator"
+        DTS:DTSID="{E579E34C-5720-4A81-9287-8EEAAC85B330}"
+        DTS:ObjectName="{E579E34C-5720-4A81-9287-8EEAAC85B330}">
+        <DTS:PropertyExpression
+          DTS:Name="Directory">@[User::InputFolder]</DTS:PropertyExpression>
+        <DTS:ObjectData>
+          <ForEachFileEnumeratorProperties>
+            <FEFEProperty
+              Folder="C:\Users\kalya\Documents\Codex\2026-09-25\ca\outputs\BankingDailyLoad\input" />
+            <FEFEProperty
+              FileSpec="bank_*.csv" />
+            <FEFEProperty
+              FileNameRetrievalType="0" />
+            <FEFEProperty
+              Recurse="0" />
+          </ForEachFileEnumeratorProperties>
+        </DTS:ObjectData>
+      </DTS:ForEachEnumerator>
+      <DTS:Variables />
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Stage each daily CSV file\Read CSV and stage all rows with validation"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:DTSID="{E1E17AE2-49CD-4D63-8A16-C5D9586A0DA0}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Read CSV and stage all rows with validation"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{F43BAB48-0DB3-4759-A187-653BAA61CB29}"
+              SQLTask:SqlStatementSource="EXEC bankdemo.StageFile @FilePath=?;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::CurrentFile"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="130"
+                SQLTask:ParameterSize="450" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:ForEachVariableMappings>
+        <DTS:ForEachVariableMapping
+          DTS:CreationName=""
+          DTS:DTSID="{592B8B47-9DA5-4539-BA3F-CDA053DB6253}"
+          DTS:ObjectName="{592B8B47-9DA5-4539-BA3F-CDA053DB6253}"
+          DTS:ValueIndex="0"
+          DTS:VariableName="User::CurrentFile" />
+      </DTS:ForEachVariableMappings>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[{8A78BFF9-2A7D-47EE-BD84-922240BAC7F2\}]"
+      DTS:CreationName=""
+      DTS:DTSID="{8A78BFF9-2A7D-47EE-BD84-922240BAC7F2}"
+      DTS:From="Package\Stage each daily CSV file"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="{8A78BFF9-2A7D-47EE-BD84-922240BAC7F2}"
+      DTS:To="Package\Convert dates and publish active customers and transactions" />
+  </DTS:PrecedenceConstraints>
+</DTS:Executable>

@@ -1,0 +1,20 @@
+Verified on 25 September 2026 against .\SQLEXPRESS / GOC_DataEngineer_Practice.
+SQL Server 2019 (15.0.2000.5), Express Edition, 64-bit.
+SSIS package executed twice with DTExec 15.0.2000.5: DTSER_SUCCESS (0) both times.
+
+Loaded files: 6
+Staged source rows: 36
+Inactive rows retained in staging: 12
+Rejected rows retained with error descriptions: 2
+Final active customers: 12
+Final active valid transactions: 22
+
+PASS: identical rerun preserved file, staging, customer, and transaction counts.
+PASS: TX0001 invalid date and TX0003 invalid amount did not enter final transactions.
+PASS: source dates became SQL date/datetime2 values and amounts became decimal(18,2).
+PASS: next-day inactive update removed CU001 and its transactions from active targets while preserving staged history. This test ran in a transaction that was rolled back.
+
+Implementation: native SSIS Foreach File loop and Execute SQL tasks; SQL BULK INSERT performs CSV ingestion; SQL procedures perform validation, conversions, and active-only publishing.
+No daily scheduler was installed.
+
+Project verification: Visual Studio 2019 build passed (1 succeeded, 0 failed); produced BankingDailyLoad.ispac. Project copy executed with DTSER_SUCCESS (0). Rerun counts and rolled-back next-day deactivation assertions passed.
